@@ -227,15 +227,13 @@
 
       ////////////////////////////////////////////////////////////
       function runGEE(){
-        function thresholdChange(changeCollection,changeThreshLower,changeThreshUpper,changeDir){
+        function thresholdChange(changeCollection,changeThreshLower,changeDir){
             if(changeDir === undefined || changeDir === null){changeDir = 1}
-            var bandNames = ee.Image(changeCollection.first()).bandNames();
-            bandNames = bandNames.map(function(bn){return ee.String(bn).cat('_change_year')});
             var change = changeCollection.map(function(img){
               var yr = ee.Date(img.get('system:time_start')).get('year');
-              var changeYr = img.multiply(changeDir).gte(changeThreshLower).and(img.multiply(changeDir).lte(changeThreshUpper));
+              var changeYr = img.multiply(changeDir).gte(changeThreshLower);
               var yrImage = img.where(img.mask(),yr);
-              changeYr = yrImage.updateMask(changeYr).rename(bandNames).int16();
+              changeYr = yrImage.updateMask(changeYr).int16();
               return img.updateMask(changeYr.mask()).addBands(changeYr);
             });
             return change;
@@ -264,11 +262,11 @@
 
       var lcms = ee.ImageCollection('projects/USFS/LCMS-NFS/R4/Landcover-Landuse-Change/R4_all_epwt_annualized').select(['DND','RNR'],['Loss','Gain']);
 
-      var loss = thresholdChange(lcms.select(['Loss']),lossThresh,100,1).select([0,1],['prob','year']).qualityMosaic(sortByMethod);
-      var gain = thresholdChange(lcms.select(['Gain']),gainThresh,100,1).select([0,1],['prob','year']).qualityMosaic(sortByMethod);
+      var loss = thresholdChange(lcms.select(['Loss']),lossThresh,1).select([0,1],['prob','year']).qualityMosaic(sortByMethod);
+      var gain = thresholdChange(lcms.select(['Gain']),gainThresh,1).select([0,1],['prob','year']).qualityMosaic(sortByMethod);
       
-      addLayer(loss.select(['year']),{min:startYear,max:endYear,palette:lossYearPalette},'Loss Year')
-      addLayer(gain.select(['year']),{min:startYear,max:endYear,palette:gainYearPalette},'Gain Year')
+      addLayer(loss.select(['year']),{min:startYear,max:endYear,palette:lossYearPalette,addRampToLegend:true},'Loss Year')
+      addLayer(gain.select(['year']),{min:startYear,max:endYear,palette:gainYearPalette,addRampToLegend:true},'Gain Year')
 
       // var msaStats = ee.FeatureCollection('projects/igde-work/CODA_UrbanCanopy/msas-canopy-cover-stats');
       // // var blockStats = ee.FeatureCollection('projects/igde-work/CODA_UrbanCanopy/blocks-z12-canopy-cover-stats');
