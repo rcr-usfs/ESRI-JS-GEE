@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Urban Canopy</title>
+
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="css/main.css">
+ 
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+<div id='the-legend' class='my-legend' style='display:none;background: #222;width: 200px;border-radius: 3px;'>
+    <div class='legend-title'>Class Key</div>
+    <div class='legend-scale'>
+        <ul class='legend-labels' id = 'the-legend-labels'>
+            <li><span style='background:#0F0;'></span>Canopy Image</li>
+           <!--  <br>
+            <li><span>Temperature</span></li>
+            <li><span style='background:linear-gradient(to right,#00F,#888,#F00);width:100%;'></span></li>
+            <li style = 'float:left'>10&#xb0 C</li>
+            <li style = 'float:right'>40&#xb0 C</li> -->
+        </ul>
+    </div>
+    <div class='legend-source'><a href="#link to source"></a></div>
+
+</div>
+  
+
+  <script>var dojoConfig = { parseOnLoad: true }</script>
+  <!-- <link href="https://js.arcgis.com/4.8/esri/css/main.css" rel="stylesheet" type="text/css"> -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.12/esri/themes/dark/main.css">
+  <script src="https://js.arcgis.com/4.12"></script>
+  <script type="text/javascript" src="./js/ee_api_js.js"></script>
+  <script src = './js/esri_js_api_manager.js'></script>
+</head>
+
+<body>
+  <div id = 'spinner'>
+  <img class = 'fa-spin'  src="./images/GEE_logo_transparent.png">
+  <img class = 'fa-spin'  src="./images/ESRI_Globe.png">
+  </div>
+
+  <div id="viewDiv"></div>
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+html,
+    body,
+    #viewDiv {
+        position:absolute;
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+    .my-legend .legend-title {
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 90%;
+            width:100%;
+        }
+
+        .my-legend .legend-scale ul {
+            margin: 5px;
+            margin-bottom: 5px;
+            padding: 0;
+            float: center;
+            list-style: none;
+            width:90%;
+        }
+
+            .my-legend .legend-scale ul li {
+                font-size: 80%;
+                list-style: none;
+                margin-left: 0;
+                line-height: 18px;
+                margin-bottom: 2px;
+            }
+
+        .my-legend ul.legend-labels li span {
+            display: block;
+            float: left;
+            height: 16px;
+            width: 30px;
+            margin-right: 5px;
+            margin-left: 0;
+            /*border: 1px solid #999;*/
+        }
+
+        .my-legend .legend-source {
+            font-size: 70%;
+            color: #999;
+            clear: both;
+        }
+
+        
+        .my-legend a {
+            color: #777;
+            border-radius: 10px;
+        }
+
+        .overlay1 {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: url("../images/ESRI_Globe.png") no-repeat center center
+         
+        }
+        .overlay2 {
+          position: absolute;
+          top: 13%;
+          left: 13%;
+          width: 75%;
+          height: 75%;
+          background:  url("../images/GEE_logo_transparent.png") no-repeat center center;
+          z-index:2;
+        }
+       #spinner .fa-spin {height:35%!important;width:35%!important;}
+       #spinner{position:absolute;left:25%!important;top:25%!important;}
