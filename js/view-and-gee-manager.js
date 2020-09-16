@@ -258,9 +258,12 @@ function reRun(){
       changeDurationPalette = 'BD1600,E2F400,0C2780';
 
       var treeMasks = ee.Image('projects/USFS/LCMS-NFS/R4/Landcover-Landuse-Change/Landcover_Probability_epwt_treemask_stack');
-      var treeBandNames = ee.List.sequence(startYear+1,endYear-1).map(function(yr){
+      treeMasks = ee.Image.cat([treeMasks.select([0],['Tree_1985']),treeMasks,treeMasks.select([treeMasks.bandNames().length().subtract(1)],['Tree_2019'])])
+     
+      var treeBandNames = ee.List.sequence(startYear,endYear).map(function(yr){
         return ee.String('Tree_').cat(ee.Number(yr).int16().format());
       });
+      
       treeMask = treeMasks.select(treeBandNames).reduce(ee.Reducer.max());
 
       // addLayer(treeMask,{min:1,max:1,palette:'0F0'},'Tree Mask');
@@ -277,7 +280,7 @@ function reRun(){
         gain = gain.updateMask(treeMask);
       }
       addLayer(loss.select(['year']),{min:startYear,max:endYear,palette:lossYearPalette,addRampToLegend:true},'Loss Year')
-      addLayer(gain.select(['year']),{min:startYear,max:endYear,palette:gainYearPalette,addRampToLegend:true},'Gain Year')
+      addLayer(gain.select(['year']),{min:startYear,max:endYear,palette:gainYearPalette,addRampToLegend:true},'Gain Year',false)
 
       }
      view.when(function() {

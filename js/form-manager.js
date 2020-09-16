@@ -129,18 +129,18 @@ $('head').append(templates.legendDiv);
 $('head').append(templates.paramsDiv);
 
 
-$('#year-range-slider').bind( "mouseup", function(e) {
+$('#year-range-slider').bind( "mouseup dragend", function(e) {
   startYear = e.target.minValue;
   endYear =  e.target.maxValue;
   reRun();
 });
 
-$('#loss-thresh-slider').bind('mouseup',function(e){
+$('#loss-thresh-slider').bind('mouseup dragend',function(e){
   lossThresh = e.target.value;
   reRun();
 })
 
-$('#gain-thresh-slider').bind('mouseup',function(e){
+$('#gain-thresh-slider').bind('mouseup dragend',function(e){
   gainThresh = e.target.value;
   reRun();
 })
