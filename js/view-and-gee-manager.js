@@ -35,9 +35,10 @@ function reRun(){
       "esri/layers/BaseElevationLayer",
       "esri/widgets/BasemapGallery",
       "esri/widgets/ScaleBar",
+      "esri/widgets/Bookmarks",
       "dojo/domReady!"
     ], function(Attribution,esriConfig, GeoJSONLayer, WebTileLayer, Map,
-      Basemap, SceneView,MapView,Expand,LayerList,Legend,CoordinateConversion,ElevationLayer,BaseElevationLayer,BasemapGallery,ScaleBar
+      Basemap, SceneView,MapView,Expand,LayerList,Legend,CoordinateConversion,ElevationLayer,BaseElevationLayer,BasemapGallery,ScaleBar,Bookmarks
     ) {
 
       // Push Regular Expression to allow all *.stamen.com servers. Alternatively,
@@ -97,20 +98,11 @@ function reRun(){
       // var mapCenter = [-113.67,47.92]//FNF
 
       var initCamera;
-      if(localStorage.coverMapperCamera === undefined || localStorage.coverMapperCamera === null){
-        var mapCenter = [-100,30]
-        initCamera = {
-        heading: 0,
-        tilt:10,
-        position: {
-          latitude: mapCenter[1],
-          longitude: mapCenter[0],
-          z: 7000000
-        }
-      };
+      if(localStorage.cameraView === undefined || localStorage.cameraView === null){
+        initCamera = JSON.parse('{"position":{"spatialReference":{"latestWkid":3857,"wkid":102100},"x":-12381942.154547459,"y":4142689.523221327,"z":3103955.357206583},"heading":359.9631949012768,"tilt":12.024890630191296}')
       }
       else{
-        initCamera = JSON.parse(localStorage.coverMapperCamera);
+        initCamera = JSON.parse(localStorage.cameraView);
       }
       
 
@@ -125,7 +117,7 @@ function reRun(){
       //   center: mapCenter,
       //   zoom:9
       // });
-      view.watch("camera", function(newValue) {localStorage.coverMapperCamera = JSON.stringify(newValue)});
+      view.watch("camera", function(newValue) {localStorage.cameraView = JSON.stringify(newValue)});
 
       //   var ccWidget = new CoordinateConversion({
       //     view: view
@@ -179,7 +171,18 @@ function reRun(){
       });
        view.ui.add(paramsExpand, "top-right");
     
-
+       // const bookmarks = new Bookmarks({
+       //    view: view,
+       //    // allows bookmarks to be added, edited, or deleted
+       //    editingEnabled: true
+       //  });
+       // const bkExpand = new Expand({
+       //    view: view,
+       //    content: bookmarks,
+       //    expanded: true
+       //  });
+       //  // Add the widget to the top-right corner of the view
+       //  view.ui.add(bkExpand, "top-right");
       
       initialize();
       
