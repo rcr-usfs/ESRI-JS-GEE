@@ -1,7 +1,23 @@
+var authProxyAPIURL = "https://rcr-ee-proxy-2.herokuapp.com";
+      var geeAPIURL = "https://earthengine.googleapis.com";
+
+      function initialize(){
+        ee.initialize(authProxyAPIURL,geeAPIURL,function(){
+        console.log('initialized')
+        $('#spinner').hide();
+        runGEE();
+        });
+      }
+function reRun(){
+  map.layers.removeAll();
+  $('#the-legend-labels').empty()
+  runGEE()
+}
  var addLayer;var map;var view;
     var mapper = new Object();
     var layerNumber = 1;
     var layerList = [];
+    var runGEE;
     require([
       "esri/widgets/Attribution",
       "esri/config",
@@ -139,32 +155,34 @@
 
       view.ui.add(bmExpand, "top-right");
 
-      // Instructions expand widget
-                const legend = document.getElementById("the-legend");
-                $('#the-legend').show();
-                legendExpand = new Expand({
-                    expandIconClass: "esri-icon-key",
-                    expandTooltip: "Legend",
-                    expanded: true,
-                    view: view,
-                    content: legend
-                });
+      //Expand widget
+      const legend = document.getElementById("legend-div");
+      $('#legend-div').show();
+      legendExpand = new Expand({
+          expandIconClass: "esri-icon-key",
+          expandTooltip: "Legend",
+          expanded: true,
+          view: view,
+          content: legend
+      });
        view.ui.add(legendExpand, "bottom-left");
     
+      //Expand widget
+      const params = document.getElementById("params-div");
+      $('#params-div').show();
+      paramsExpand = new Expand({
+          expandIconClass: "esri-icon-settings",
+          expandTooltip: "Parameters",
+          expanded: true,
+          view: view,
+          content: params
+      });
+       view.ui.add(paramsExpand, "top-right");
+    
 
-
-      ee.initialize("https://rcr-ee-proxy.herokuapp.com/api","https://earthengine.googleapis.com/map",function(){
-
-
-
-      console.log('initialized')
-      $('#spinner').hide();
-      runGEE();
-
-
-
-      })
-
+      
+      initialize();
+      
       addGeoJSON = function(geoJSON, name,popupTemplate,renderer){
         const geojsonLayer = new GeoJSONLayer({
           url: geoJSON,
@@ -187,7 +205,7 @@
             if(vizParams.labelEnding === undefined || vizParams.labelEnding === null){vizParams.labelEnding = ''}
             var palette = vizParams.palette;
             var ramp = palette.split(',').map(function(i){return '#'+i}).join(',');
-            console.log(ramp)
+            // console.log(ramp)
             $('#the-legend-labels').append(`<br>
             <li><span style = 'width:100%;'>${name}</span></li>
             <li><span style='background:linear-gradient(to right,${ramp});width:100%;'></span></li>
@@ -198,9 +216,11 @@
           var actualOpacity = vizParams.opacity;
           vizParams.opacity = 1;
           var m = eeImage.getMap(vizParams);
-          var url = "https://earthengine.googleapis.com/map/"+m.mapid+"/{level}/{col}/{row}?token="+m.token;
-          console.log(name);console.log(url);
-          var urlThumb = "https://earthengine.googleapis.com/map/"+m.mapid+"/10/177/409?token="+m.token + ".png"
+         
+          var url = m.urlFormat;
+          url = url.replace('{z}','{level}');
+          url = url.replace('{x}','{col}');
+          url = url.replace('{y}','{row}');
           var eeBaseLayer = new WebTileLayer({
                           urlTemplate: url,
                           id: name,
@@ -209,24 +229,16 @@
                           opacity: actualOpacity ,
                           copyright:'Google Earth Engine|USDA Forest Service' 
                           });
-          // Create a Basemap with the WebTileLayer. The thumbnailUrl will be used for
-          // the image in the BasemapToggle widget.
-          // var eeMap = new Basemap({
-          // baseLayers: [eeBaseLayer],
-          // title: name,
-          // id: name,
-          // thumbnailUrl: urlThumb
-          // });
-          
+         
           map.layers.add(eeBaseLayer)
-          layerList.push(eeBaseLayer)
+          // layerList.push(eeBaseLayer)
           layerNumber ++
         }
 
         mapper.addLayer = addLayer;
 
       ////////////////////////////////////////////////////////////
-      function runGEE(){
+      runGEE = function(){
         function thresholdChange(changeCollection,changeThreshLower,changeDir){
             if(changeDir === undefined || changeDir === null){changeDir = 1}
             var change = changeCollection.map(function(img){
@@ -238,13 +250,7 @@
             });
             return change;
           }
-      var startYear = 1985;
-      var endYear = 2019;
-      var lossThresh = 30;
-      var gainThresh = 30;
-
-      var sortByMethod = 'year';//Choose year or prob
-
+    
       lossYearPalette =  'ffffe5,fff7bc,fee391,fec44f,fe9929,ec7014,cc4c02';
       lossMagPalette = 'D00,F5DEB3';
       gainYearPalette =  'AFDEA8,80C476,308023,145B09';
@@ -255,20 +261,25 @@
       var treeBandNames = ee.List.sequence(startYear+1,endYear-1).map(function(yr){
         return ee.String('Tree_').cat(ee.Number(yr).int16().format());
       });
-      treeMask = treeMasks.select(treeBandNames).reduce(ee.Reducer.max()).selfMask();
+      treeMask = treeMasks.select(treeBandNames).reduce(ee.Reducer.max());
 
       // addLayer(treeMask,{min:1,max:1,palette:'0F0'},'Tree Mask');
 
 
-      var lcms = ee.ImageCollection('projects/USFS/LCMS-NFS/R4/Landcover-Landuse-Change/R4_all_epwt_annualized').select(['DND','RNR'],['Loss','Gain']);
+      var lcms = ee.ImageCollection('projects/USFS/LCMS-NFS/R4/Landcover-Landuse-Change/R4_all_epwt_annualized')
+      .filter(ee.Filter.calendarRange(startYear,endYear,'year'))
+      .select(['DND','RNR'],['Loss','Gain']);
 
-      var loss = thresholdChange(lcms.select(['Loss']),lossThresh,1).select([0,1],['prob','year']).qualityMosaic(sortByMethod);
-      var gain = thresholdChange(lcms.select(['Gain']),gainThresh,1).select([0,1],['prob','year']).qualityMosaic(sortByMethod);
-      
+      var loss = thresholdChange(lcms.select(['Loss']),lossThresh*100,1).select([0,1],['prob','year']).qualityMosaic(sortByMethod);
+      var gain = thresholdChange(lcms.select(['Gain']),gainThresh*100,1).select([0,1],['prob','year']).qualityMosaic(sortByMethod);
+      if(applyTreeMask === true || applyTreeMask === 'true'){
+        loss = loss.updateMask(treeMask);
+        gain = gain.updateMask(treeMask);
+      }
       addLayer(loss.select(['year']),{min:startYear,max:endYear,palette:lossYearPalette,addRampToLegend:true},'Loss Year')
       addLayer(gain.select(['year']),{min:startYear,max:endYear,palette:gainYearPalette,addRampToLegend:true},'Gain Year')
 
-      
+      }
      view.when(function() {
 
 
@@ -344,8 +355,9 @@
         var bgExpand = new Expand({
         view: view,
         content: layerList,
-        expanded: true,
-        id: 'EE Maps'
+        expanded: false,
+        id: 'EE Maps',
+        expandTooltip: 'Map Layers'
       });
     
       // Add the expand instance to the ui
@@ -358,6 +370,6 @@
      
      
 
-}
+
 
     });
