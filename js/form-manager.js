@@ -7,16 +7,7 @@
   var applyTreeMask = true;
   var sortByMethod = 'year';//Choose year or prob
 
-  function handleYearRangeChange(newMinValue, newMaxValue) {
-    yearMinValue = newMinValue;
-    yearMaxValue = newMaxValue;
 
-    // debounce the year range update
-    console.log(yearMinValue);console.log(yearMaxValue);
-  }
-function update(event){
-  console.log(event)
-}
 var templates = {
 
   'legendDiv':`<div id='legend-div' class='my-legend' style='display:none;background: #222;width: 200px;border-radius: 3px;'>
@@ -30,7 +21,12 @@ var templates = {
  
   'paramsDiv':`<div id = 'params-div' class = 'params' style='display:none;'>
                 <h3 class = 'param-element'>Parameters</h3>
+                <div id = 'params-spinner' style = 'display:none;' class = 'param-element' title = 'Updating maps with new parameters'>
+                  <img height = '50px' class = 'fa-spin'  src="./images/ESRI_Globe.png">
+                  Updating maps
+                  <img height = '50px' class = 'fa-spin'  src="./images/GEE_logo_transparent.png">
 
+                </div>
                  <label class = 'param-element'>
                     Year range
                     <calcite-slider

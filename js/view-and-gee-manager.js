@@ -1,23 +1,26 @@
 var authProxyAPIURL = "https://rcr-ee-proxy-2.herokuapp.com";
-      var geeAPIURL = "https://earthengine.googleapis.com";
-
-      function initialize(){
-        ee.initialize(authProxyAPIURL,geeAPIURL,function(){
-        console.log('initialized')
-        $('#spinner').hide();
-        runGEE();
-        });
-      }
-function reRun(){
-  map.layers.removeAll();
-  $('#the-legend-labels').empty()
-  runGEE()
+var geeAPIURL = "https://earthengine.googleapis.com";
+var addLayer;var map;var view;
+var mapper = new Object();
+var layerNumber = 1;
+var layerList = [];
+var runGEE;
+var outstandingGEEServiceCount = 0;
+function initialize(){
+  ee.initialize(authProxyAPIURL,geeAPIURL,function(){
+  console.log('initialized')
+  $('#spinner').hide();
+  runGEE();
+  });
 }
- var addLayer;var map;var view;
-    var mapper = new Object();
-    var layerNumber = 1;
-    var layerList = [];
-    var runGEE;
+function reRun(){
+  // $('#params-spinner').show()
+  map.layers.removeAll();
+  
+  $('#the-legend-labels').empty()
+  runGEE();
+}
+
     require([
       "esri/widgets/Attribution",
       "esri/config",
@@ -205,6 +208,7 @@ function reRun(){
           if(name === undefined || name === null){name = 'Layer '+ layerNumber.toString()};
           if(!vizParams.opacity){vizParams.opacity = 1};
           if(vizParams.addRampToLegend){
+            outstandingGEEServiceCount++;
             if(vizParams.labelEnding === undefined || vizParams.labelEnding === null){vizParams.labelEnding = ''}
             var palette = vizParams.palette;
             var ramp = palette.split(',').map(function(i){return '#'+i}).join(',');
@@ -218,9 +222,8 @@ function reRun(){
          
           var actualOpacity = vizParams.opacity;
           vizParams.opacity = 1;
-          var m = eeImage.getMap(vizParams);
-         
-          var url = m.urlFormat;
+          eeImage.getMap(vizParams,function(m){
+            var url = m.urlFormat;
           url = url.replace('{z}','{level}');
           url = url.replace('{x}','{col}');
           url = url.replace('{y}','{row}');
@@ -233,8 +236,17 @@ function reRun(){
                           copyright:'Google Earth Engine|USDA Forest Service' 
                           });
          
-          map.layers.add(eeBaseLayer)
+          map.layers.add(eeBaseLayer);
+          outstandingGEEServiceCount--;
+          console.log(outstandingGEEServiceCount)
+          if(outstandingGEEServiceCount === 0){
+            $('#params-spinner').slideUp()
+          }
+          
           // layerList.push(eeBaseLayer)
+          });
+         
+          
           layerNumber ++
         }
 
@@ -242,6 +254,7 @@ function reRun(){
 
       ////////////////////////////////////////////////////////////
       runGEE = function(){
+        $('#params-spinner').slideDown()
         function thresholdChange(changeCollection,changeThreshLower,changeDir){
             if(changeDir === undefined || changeDir === null){changeDir = 1}
             var change = changeCollection.map(function(img){
@@ -284,7 +297,7 @@ function reRun(){
       }
       addLayer(loss.select(['year']),{min:startYear,max:endYear,palette:lossYearPalette,addRampToLegend:true},'Loss Year')
       addLayer(gain.select(['year']),{min:startYear,max:endYear,palette:gainYearPalette,addRampToLegend:true},'Gain Year',false)
-
+      // $('#params-spinner').hide()
       }
      view.when(function() {
 

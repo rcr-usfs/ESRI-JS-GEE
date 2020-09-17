@@ -55,7 +55,7 @@ html,
             border-radius: 10px;
         }
         .params{
-          background: #222;width: 300px!important;border-radius: 3px;
+          background: #222;width: 300px!important;border-radius: 3px;; 
         }
         .param-element{
           padding-left:10%;
